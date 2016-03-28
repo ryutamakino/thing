@@ -1,0 +1,83 @@
+<html>
+<body>
+<style>
+#list {
+    width:300px;
+}
+#list td, th {
+    border:1px solid #000;
+    padding:5px 10px;
+}
+</style>
+<h2>People Book Project</h2>
+
+
+<div id="data">
+    <form id="person">
+        <br>
+        <br>Name:&nbsp&nbsp&nbsp
+        <input id="firstname" name="firstname" type="text">
+        <br>
+        <br>lastname:&nbsp&nbsp&nbsp
+        <input id="lastname" name="lastname" type="text">
+        
+        <br>
+        <br>Email Address: &nbsp&nbsp&nbsp
+        <input id="address" name="address" type="text">
+        <br>
+        <br>phone: &nbsp&nbsp&nbsp
+        <input id="phone" name="phone" type="text">
+        <br>
+        <br>
+        <input class="button" type="button" value=" Reset " onclick="ResetForm()">&nbsp&nbsp&nbsp
+        <input class="button" type="button" value=" Add " onclick="AddData()">
+        <input class="button" type="button" value=" Update ">
+    </form>
+</div>
+
+<h3>List Of Persons</h3>
+
+<div id="tab">
+    <table id="list" cellspacing="0px" cellpadding="20px" text-align="center">
+        <thead>
+            <tr>
+                <td>first</td>
+                <td>last</td>
+                <td>email address</td>
+                <td>phone</td>
+                
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+<script>
+function AddData() {
+    var rows = "";
+    
+    var Person = {
+        firstname: document.getElementById("firstname").value,
+        lastname: document.getElementById("lastname").value,
+        Address: document.getElementById("address").value,
+        phoneNumber: document.getElementById("phone").value
+    };
+        
+        
+
+        rows += "<td>" + Person.firstname + "</td><td>" + Person.lastname + "</td><td>" + Person.Address + "</td><td>" + Person.phoneNumber + "</td>"
+        var tbody = document.querySelector("#list tbody");
+        var tr = document.createElement("tr");
+
+        tr.innerHTML = rows;
+        tbody.appendChild(tr)
+
+        //
+    }
+
+
+function ResetForm() {
+    document.getElementById("person").reset();
+}
+</script>
+</body>
+</html>
