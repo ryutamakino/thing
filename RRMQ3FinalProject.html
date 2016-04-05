@@ -1,0 +1,522 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Henruta Fine Art</title>
+</head>
+<body>
+    <p11 id="money"></p11>
+<center>
+<div id= banner>
+<h1>Henruta Fine Art Dealer</h1>
+</div>
+
+Search: <input type="text" id="search" oninput="search('paint'); search('sculpt');">
+<button id="add" type="button" onclick="show(artType);">Sell Art</button>
+<button id="surprise" type="button" onclick="canDelete = true; show(display); document.getElementById('instr').removeAttribute('hidden');">Buy Art</button>
+<br>
+<div id="instr" hidden="true" style="margin-top: 10px;">
+Please click the art you would like to buy
+</div>
+<div id="artType" hidden="true">
+    <p10 style="text-align: center;">What type of art are you trying to sell?</p10>
+    <button name="data" id="paintForm" type="button" onclick="show(info); document.getElementById('paint').removeAttribute('hidden'); whatType='paint'">Painting</button>
+    <button name="data" id="sculptForm" type="button" onclick="show(info); document.getElementById('sculpt').removeAttribute('hidden'); whatType='sculpt'">Sculpture</button>
+</div>
+
+
+
+<div id= "info" hidden="true">
+<h2 id= "person">Information</h2>
+<center>
+<div style="display: inline-block;">
+<div align="right">
+<form id= "form">
+<!-- I know the "onkeydown" property of my forms looks dumb, this is to stop the page from reloading when the "Enter" key is pressed -->
+Title of Art: <input type="text" name="name" id="name" onkeydown="if (event.keyCode == 13){ document.getElementById('submitButton').click()}">
+<br>Artist:<input type="text" name="year" id="artist"  onkeydown="if (event.keyCode == 13){ document.getElementById('submitButton').click()}">
+<br>Year:<input type="text" name="year" id="year" onkeydown="if (event.keyCode == 13){ document.getElementById('submitButton').click()}">
+<br><p1 id="ageTxt">Country:</p1><input type="text" name="country" id="country" onkeydown="if (event.keyCode == 13){ document.getElementById('submitButton').click()}">
+<br>Price: <input type="text" name="name" id="price" style="margin-right: 4px;" onkeydown="if (event.keyCode == 13){ document.getElementById('submitButton').click()}">
+
+<div id="paint" hidden="true">
+
+Style: <input type="text" name="name" id="style" onkeydown="if (event.keyCode == 13){ document.getElementById('submitButton').click()}">
+<br>Width: <input type="text" name="name" id="width" onkeydown="if (event.keyCode == 13){ document.getElementById('submitButton').click()}">
+<br>Height: <input type="text" name="name"  style="margin-right: 4px;" id="height" onkeydown="if (event.keyCode == 13){ document.getElementById('submitButton').click()}">
+</div>
+
+
+
+<div id="sculpt" hidden="true">
+    Weight: <input type="text" name="name" id="weight" onkeydown="if (event.keyCode == 13){ document.getElementById('submitButton').click()}">
+<br>Material: <input type="text" name="name" id="material" onkeydown="if (event.keyCode == 13){ document.getElementById('submitButton').click()}">
+<br>Area: <input type="text" name="name" style="margin-right: 4px;"id="area" onkeydown="if (event.keyCode == 13){ document.getElementById('submitButton').click()}">
+</div>
+</div>
+</center>
+
+<br><button name="data" id="submitButton" type="button" onclick="addArt(); document.getElementById('form').reset();">Submit</button>
+</form>
+</div>
+
+<div id="continue" hidden="true">
+<p2>Would you like to sell another piece of art?</p2>
+<button name="data" id="yes" type="button" onclick="goBack(true);">Yes</button>
+<button name="data" id="no" type="button" onclick="goBack(false);">Nope</button>
+</div>
+
+<div id="display" >
+<div id="instr" hidden="true" >
+Please click the Person you would like to delete
+</div>
+<h3>Paintings</h3>
+<table id="paintTable">
+        <tr class="head">
+                <td>Title</td>
+                <td>Price</td>
+                <td>Year</td>
+                <td>Country</td>
+                <td>Artist</td>
+                <td>Style</td>
+                <td>Width (in)</td>
+                <td>Height (in)</td>
+
+        </tr>
+</table>
+
+
+
+<h3>Sculptures</h3>
+<table id="sculptTable">
+        <tr class="head">
+                <td>Title</td>
+                <td>Price</td>
+                <td>Year</td>
+                <td>Country</td>
+                <td>Artist</td>
+                <td>Weight</td>
+                <td>Material</td>
+                <td>Area (ft^3)</td>
+        </tr>
+</table>
+</div>
+</center>
+
+
+<script>
+var confirm = document.getElementById("continue");
+var display = document.getElementById("display");
+var objArray = [];
+var canDelete = false;
+  //This is the main array that will hold all of the "people"
+var paintArray = [];
+var sculptArray = [];
+var paintTableArray = [];
+var sculptTableArray = [];
+var whatType;
+var money = 2500;
+
+function updateMoney(price){
+    money -= price;
+    document.getElementById("money").innerHTML = "Income: $"+money;
+}
+updateMoney(0);
+
+
+
+function Art(name, artist, year,country,price){
+                 this.name = name;
+                 this.price = price;         //This is the constructor that will create a new Person with the specified properties
+                 this.year = year;
+                 this.country = country;
+                 this.artist = artist;
+                 this.match = true;
+         }
+Art.prototype.enoughMoney = function(){
+        console.log("##########")
+        console.log(this.price);
+    if(parseInt(this.price.split(",").join(""))>money){
+        document.getElementById("instr").setAttribute("hidden","true");
+        alert("You don't have enough money!");
+        console.log("price was too big")
+        return false;
+    }
+    else{
+        console.log("price was small enough");
+        updateMoney(parseInt(this.price));
+        return true;
+    }
+}
+
+function paint(obj,style1,width1,height1){
+
+    obj.style = style1;
+    obj.width = width1;
+    obj.height = height1;
+    console.log(obj.price);
+    updateMoney(parseInt("-"+obj.price));
+    return obj;
+
+}
+
+function sculpt(obj,weight1,material1,area1){
+
+    obj.weight = weight1;
+    obj.material = material1;
+    obj.area = area1;
+    console.log(obj.price);
+    updateMoney(parseInt("-"+obj.price));
+    return obj;
+
+}
+
+
+
+
+function sort(){  //this resets the array to get rid of sparse arrays
+          
+          paintTableArray = [];   
+          for(i=0; i<paintArray.length; i++){
+                  if(paintArray[i].match == true){
+                          paintTableArray.push(paintArray[i]);
+                          console.log("added an element into the painttableArray");
+                  }
+          
+          }
+
+          sculptTableArray = [];   
+          for(i=0; i<sculptArray.length; i++){
+                  if(sculptArray[i].match == true){
+                          sculptTableArray.push(sculptArray[i]);
+                          console.log("added an element into the sculptTableArray");
+                  }
+          
+          }
+}
+
+
+
+
+
+         function addArt(){  //This is the main function that will run everything once the submit button is pressed
+                 
+                 
+                 var name = document.getElementById("name").value;
+                 var artist = document.getElementById("artist").value;
+                 var year = document.getElementById("year").value;    //These get the value of the text inputs
+                 var country = document.getElementById("country").value;
+                 var price = document.getElementById("price").value;
+                 
+                 switch(whatType){
+                    case 'paint':
+                        var style = document.getElementById("style").value;
+                        var width = document.getElementById("width").value;
+                        var height = document.getElementById("height").value;
+                        paintArray.push(paint(new Art(name, artist, year, country,price, whatType), style, width, height));
+
+                        break;
+
+
+                    case 'sculpt':
+                        var weight = document.getElementById("weight").value;
+                        var material = document.getElementById("material").value;
+                        var area = document.getElementById("area").value;
+                        sculptArray.push(sculpt(new Art(name, artist, year, country, price, whatType), weight, material, area));
+                        break;
+                 }
+
+                makeTable(whatType);
+                 show(display);
+
+         }
+         
+         
+        function makeTable(type){
+                sort();
+                refreshTable(type+"Table");
+                console.log("tried to make the table");
+                var table = document.getElementById(type+"Table"); 
+                var typeArray =  eval(type+"TableArray");
+                for(i=0; i<typeArray.length; i++){             //goes through all objects in the array
+                        if(typeArray[i].match == true){
+                        var row = table.insertRow(i+1);  //starts at the 2nd row bc the first is predetermined (header)
+                        row.setAttribute("onclick","tryDelete("+i+","+"'"+type+"'"+")");
+                        var k = 0;
+                        for (prop in typeArray[i]){              //goes through each property of each person
+                                if(prop != "match" && prop != "type" && prop != "enoughMoney"){
+                                
+                            
+                                
+                                row.insertCell(k).innerHTML = typeArray[i][prop];
+                                console.log("added first name");
+                                k++;
+                        }}
+                        }
+                }
+                console.log(typeArray);
+        }
+        function refreshTable(tableName){
+                console.log(tableName)
+                var table = document.getElementById(tableName);
+               
+                while(table.rows.length >1){   //for all of the rows in the table
+                        table.deleteRow(1);   //delete all rows except for the top one
+                }
+                console.log("just refreshed the table");
+                console.log(objArray);
+        }
+        
+        
+        function restart(){   //this resets everything
+                
+               
+                objArray = []   //clears the objArray
+                document.getElementById("fileName").value = "";
+                refreshTable();
+                console.log(table);
+                console.log("it restarted");
+        }
+        function show(type){   //this sets all elements invisible except the argument that is passd into it 
+                var info = document.getElementById("info");
+                var display = document.getElementById("display");
+                var confirm = document.getElementById("continue");
+                var artType = document.getElementById("artType");
+                var paint = document.getElementById("paint");
+                var sculpt = document.getElementById("sculpt");
+                
+                
+                info.setAttribute("hidden","true");
+                display.setAttribute("hidden","true");
+                confirm.setAttribute("hidden","true");
+                artType.setAttribute("hidden","true");
+                paint.setAttribute("hidden","true");
+                sculpt.setAttribute("hidden","true");
+                
+                
+                type.removeAttribute("hidden");
+        }
+        function tryDelete(where, type){   //this tries the delete elements from the objArray, will only delete if 
+
+                var ogArray =   eval(type+"Array"); 
+                var typeArray =  eval(type+"TableArray");
+                console.log(type);
+                if(canDelete && ogArray[where].enoughMoney()){
+                        ogArray.splice(where,1);
+                        var table = document.getElementById(type+"Table"); 
+                        for(i=1; i<table.rows.length; i++){   //for all of the rows in the table
+                                table.deleteRow(i);   //delete all rows except for the top one
+                        }
+                        refreshTable(type+"Table");
+                        makeTable(type);
+                        document.getElementById("instr").setAttribute("hidden","true");
+                }
+                canDelete = false;
+                
+        }
+        
+        function search(type){     //this will loop through all properties for the keyword
+                var key = document.getElementById("search").value;
+                console.log(key);
+                console.log(type);
+                refreshTable(type+"Table");
+                var ogArray =   eval(type+"Array"); 
+                var typeArray =  eval(type+"TableArray");
+                for(i=0; i<ogArray.length; i++){
+                        if(key.length == 0){
+                                ogArray[i].match = true;
+                        }
+                        else{
+                               ogArray[i].match = false;
+                               }
+             
+                        for(var prop in ogArray[i]){
+                                console.log("went to the next property")
+                                for(y = 0; y<ogArray[i][prop].length; y++){
+                                        if((key.toLowerCase() == ogArray[i][prop].substring(y,y+key.length).toLowerCase()  && key.toLowerCase() != undefined)|| parseInt(key) == parseInt(ogArray[i][prop].substring(y,y+key.length)) ){
+                                               
+                                                ogArray[i].match = true;   //this sets prop match to true to show in the match
+                                        }
+                                        else{
+                                                
+                                        console.log(ogArray[i][prop].substring(y,y+key.length));
+                                        }
+                                }
+                        } 
+                }
+                
+                makeTable(type);
+                
+                
+        }
+        
+
+
+
+
+
+
+
+
+//(name, artist, year,country,price){
+
+sculptArray.push(sculpt(new Art("Venus de Milo", "Alezandros","130 BC","Greece", "6,750,000"), "450lbs", "Marble", "5"));
+sculptArray.push(sculpt(new Art("David", "Michelangelo","1501","Italy", "8,500,000"), "700lbs", "Marble", "7"));
+sculptArray.push(sculpt(new Art("Underwater Atlantean ", "Spongebob","2001","Bikini Bottom", "1,100"), "36lbs", "Coral", "2"));
+
+//sculptArray.push(sculpt(new Art("title", "artist","year","country","price"), "weight", "material", "area"));
+
+paintArray.push(paint(new Art("Mona Lisa", "Leonardo da Vinci", "1503","Italy", "12,500,000"), "Renaissance", "21", "30"));
+paintArray.push(paint(new Art("Starry Night", "Vincent van Gogh", "1889","France", "7,450,000"), "Modern", "36", "29"));
+paintArray.push(paint(new Art("Happy little trees", "Bob Ross", "1990","United States", "950"), "Modern", "30", "30"));
+
+//paintArray.push(paint(new Art("title", "artist","year","country","price"), "Style", "width", "height"));
+
+makeTable("paint");
+makeTable("sculpt");
+money = 2500;
+updateMoney(0);
+
+
+
+
+
+
+        
+</script>
+<!-- Colors: white, blue (#002D62) and Yellow (#FFCF06) light blue (#4F7AA7) medium blue (#003E77)  grey (#474642) -->
+<style>
+@font-face {
+    font-family: 'quad';
+    src: url('quadranta-regular-webfont.eot');
+    src: url('quadranta-regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('quadranta-regular-webfont.woff2') format('woff2'),
+         url('quadranta-regular-webfont.woff') format('woff'),
+         url('quadranta-regular-webfont.ttf') format('truetype'),
+         url('quadranta-regular-webfont.svg#quadrantaregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'typo';
+    src: url('typographica-webfont.eot');
+    src: url('typographica-webfont.eot?#iefix') format('embedded-opentype'),
+         url('typographica-webfont.woff2') format('woff2'),
+         url('typographica-webfont.woff') format('woff'),
+         url('typographica-webfont.ttf') format('truetype'),
+         url('typographica-webfont.svg#typographicaregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+        html, body {
+            padding: 0;
+            margin: 0;
+            font-family: "typo";
+}
+        table{
+            text-align: center;
+        }
+        body{
+                background-color: #003E77;
+                color: white;
+        }
+        input{
+                margin-bottom: 5px;
+                margin-left: 10px;
+                
+        }
+        h3{
+                font-size: 32px;
+                font-weight: normal;
+                margin-top: 30px;
+        }
+        #person{
+                font-weight: normal;
+        }
+        #artist{
+                margin-left: 14px;
+        }
+        #year{
+                margin-left: 14px;
+        }
+        #country{
+                margin-left: 14px;
+        }
+
+        
+        
+        p1{
+                margin-left: -23px;
+        }
+        
+        #continue{
+                margin-top: 10px;
+                font-size: 24px;
+        }
+        #banner {
+                border: 2px solid #4F7AA7;
+                padding-top: 20px;
+                margin-top: -20px;
+                padding-bottom: 5px;
+                background-color: #002D62;
+                color: #FFCF06;
+                font-family: "quad";
+                font-size: 24px;
+                font-weight: bold;
+        }
+        
+        table, th, td{
+                border: 5px ridge #4F7AA7;
+                border-collapse: collapse;
+                padding: 5px;
+        }
+        table{
+                margin-top: -15px;
+                margin-bottom: 5px;
+                font-family: "typo";
+        }
+        .head{
+                background-color: #002D62;
+                color: #FFCF06;
+        }
+        #statTable{
+        }
+        #instr {
+                position: absolute;
+                margin-left: auto;
+                margin-right: auto;
+                margin-top: -25px;
+                left: 0;
+                right: 0;
+        }
+        p11{
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+</style>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
